@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Orbit Flip</title>
+<style>
+  html,body{margin:0;height:100%;background:#111;overflow:hidden;font-family:system-ui,sans-serif}
+  canvas{display:block;width:100%;height:100%}
+</style>
+<canvas id="c"></canvas>
+<script>
+const c = document.getElementById('c'), x = c.getContext('2d');
+let w, h, cx, cy, r, a, dir, speed, score, over, spikes, lap, spawn;
+const TAU = Math.PI * 2, dotR = 7, tol = 0.16;
+
+const resize = () => { w = c.width = innerWidth; h = c.height = innerHeight; cx = w / 2; cy = h / 2; r = Math.min(w, h) * 0.2; };
+const norm = t => (t % TAU + TAU) % TAU;
+const diff = (p, q) => Math.abs(((p - q + Math.PI) % TAU + TAU) % TAU - Math.PI);
+const reset = () => { a = 0; dir = 1; speed = 2; score = 0; over = false; spikes = []; lap = 0; spawn = 0; };
+const input = () => over ? reset() : (dir *= -1);
+
+addEventListener('resize', resize);
+addEventListener('pointerdown', input);
+addEventListener('keydown', e => (e.code === 'Space' || e.code === 'Enter') && input());
+resize(); reset();
+
+let last = 0;
+requestAnimationFrame(function loop(t) {
+  const dt = Math.min(0.032, (t - last) / 1000 || 0); last = t;
+  if (!over) {
+    const prev = a;
+    a = norm(a + dir * speed * dt);
+    lap += diff(a, prev) / TAU;
+    while (lap >= 1) { lap -= 1; score++; speed *= 1.04; }
+    spawn -= dt;
+    if (spawn <= 0) { spikes.push({ a: Math.random() * TAU, d: r + 120, v: 110 + score * 7 }); spawn = Math.max(0.32, 0.85 - score * 0.015); }
+    spikes = spikes.filter(s => {
+      s.d -= s.v * dt;
+      if (s.d <= r) { if (diff(s.a, a) < tol) over = true; return false; }
+      return true;
+    });
+  }
+
+  x.fillStyle = '#111'; x.fillRect(0, 0, w, h);
+  x.strokeStyle = '#666'; x.lineWidth = 6; x.beginPath(); x.arc(cx, cy, r, 0, TAU); x.stroke();
+  x.strokeStyle = '#f55'; x.lineWidth = 4;
+  spikes.forEach(s => { const c1 = Math.cos(s.a), s1 = Math.sin(s.a); x.beginPath(); x.moveTo(cx + c1 * s.d, cy + s1 * s.d); x.lineTo(cx + c1 * (s.d + 16), cy + s1 * (s.d + 16)); x.stroke(); });
+  x.fillStyle = '#5cf'; x.beginPath(); x.arc(cx + Math.cos(a) * r, cy + Math.sin(a) * r, dotR, 0, TAU); x.fill();
+  x.fillStyle = '#eee'; x.textAlign = 'left'; x.font = '700 24px system-ui'; x.fillText('Score ' + score, 20, 36);
+  if (over) {
+    x.textAlign = 'center'; x.font = '700 46px system-ui'; x.fillText('Game Over', cx, cy - 10);
+    x.font = '500 20px system-ui'; x.fillText('Score ' + score + '  •  Click to restart', cx, cy + 28);
+  }
+  requestAnimationFrame(loop);
+});
+</script>
+</html>
