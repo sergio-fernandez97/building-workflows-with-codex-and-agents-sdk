@@ -1,0 +1,25 @@
+sequenceDiagram
+    participant U as User
+    participant E as main.ts main
+    participant MCP as MCPServerStdio Codex CLI
+    participant PM as Project Manager
+    participant D as Designer
+    participant WS as WebSearchTool
+    participant FE as Frontend Dev
+    participant BE as Backend Dev
+    participant T as Tester
+
+    U->>E: Start workflow
+    E->>MCP: connect
+    E->>PM: run projectManagerAgent taskList
+    PM->>D: handoff
+    D->>WS: web search (optional)
+    D-->>PM: return/handoff back
+    PM->>FE: handoff
+    FE-->>PM: return/handoff back
+    PM->>BE: handoff
+    BE-->>PM: return/handoff back
+    PM->>T: handoff
+    T-->>PM: return/handoff back
+    PM-->>E: finalOutput
+    E->>MCP: close

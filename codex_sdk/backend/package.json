@@ -1,0 +1,13 @@
+{
+  "name": "bug-busters-backend",
+  "version": "1.0.0",
+  "description": "Tiny in-memory backend for Bug Busters demo",
+  "private": true,
+  "license": "MIT",
+  "engines": { "node": ">=18" },
+  "scripts": {
+    "start": "node backend/server.js"
+  },
+  "dependencies": {},
+  "devDependencies": {}
+}

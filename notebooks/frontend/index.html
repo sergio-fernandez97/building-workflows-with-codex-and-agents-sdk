@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Bug Busters</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="container">
+    <header class="header">
+      <h1 class="title">Bug Busters</h1>
+      <div class="hud" aria-live="polite">
+        <div class="hud-item">Score: <span id="scoreValue">0</span></div>
+        <div class="hud-item">Time: <span id="timeValue">20</span></div>
+      </div>
+    </header>
+
+    <main class="main">
+      <section class="play-area" id="playArea" aria-label="Play area">
+        <!-- The bug is an absolutely-positioned button inside the play area -->
+        <button id="bug" class="bug" aria-label="Bug" title="Click me!">🐞</button>
+        <!-- Game over overlay -->
+        <div id="endOverlay" class="overlay" hidden>
+          <div class="overlay-card" role="dialog" aria-labelledby="finalScoreText" aria-modal="true">
+            <p id="finalScoreText">Final score: 0</p>
+            <div class="overlay-actions">
+              <button id="restartBtn2" class="btn">Restart</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <aside class="leaderboard" id="leaderboardPanel" aria-live="polite">
+        <h2 class="lb-title">Leaderboard (Top 10)</h2>
+        <p id="leaderboardNote" class="lb-note" hidden>Leaderboard unavailable.</p>
+        <ol id="leaderboardList" class="lb-list"></ol>
+      </aside>
+    </main>
+
+    <footer class="footer">
+      <form id="submitForm" class="submit-form" aria-label="Submit score">
+        <label for="nameInput" class="visually-hidden">Name</label>
+        <input id="nameInput" name="name" type="text" maxlength="20" placeholder="Your name" />
+        <button id="submitBtn" type="submit" class="btn">Submit Score</button>
+      </form>
+      <button id="restartBtn" class="btn secondary">Restart</button>
+    </footer>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>

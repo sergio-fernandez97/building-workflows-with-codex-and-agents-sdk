@@ -1,0 +1,278 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Timing Dash</title>
+  <style>
+    :root {
+      --bg: #0f1020;
+      --panel: #17192f;
+      --text: #eff2ff;
+      --muted: #a8b0d6;
+      --target: #50e37a;
+      --marker: #89d6ff;
+      --ok: rgba(80, 227, 122, 0.42);
+      --bad: rgba(255, 89, 99, 0.42);
+    }
+
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      background: radial-gradient(1000px 500px at 50% 10%, #1d2140, var(--bg));
+      color: var(--text);
+      font: 500 16px/1.4 Inter, ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
+      user-select: none;
+    }
+
+    .game {
+      width: min(760px, 92vw);
+      background: color-mix(in oklab, var(--panel) 86%, black);
+      border: 1px solid #30365c;
+      border-radius: 14px;
+      padding: 20px 20px 16px;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.35);
+    }
+
+    .hud {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      margin-bottom: 14px;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+
+    .title { font-weight: 700; letter-spacing: 0.2px; }
+    .stats { color: var(--muted); }
+
+    .track-wrap {
+      position: relative;
+      height: 88px;
+      display: grid;
+      place-items: center;
+      isolation: isolate;
+    }
+
+    .track {
+      position: relative;
+      width: 100%;
+      height: 24px;
+      border-radius: 999px;
+      background: linear-gradient(180deg, #2a315d, #1e2448);
+      border: 1px solid #3b457d;
+      overflow: hidden;
+    }
+
+    .target {
+      position: absolute;
+      top: 1px;
+      bottom: 1px;
+      border-radius: 999px;
+      background: linear-gradient(180deg, #65f092, #39bf65);
+      box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.28) inset, 0 0 16px rgba(80, 227, 122, 0.45);
+    }
+
+    .marker {
+      position: absolute;
+      top: 50%;
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      background: radial-gradient(circle at 32% 30%, #fff, #b7e8ff 45%, var(--marker) 70%);
+      border: 2px solid #dff4ff;
+      transform: translate(-50%, -50%);
+      box-shadow: 0 0 16px rgba(137, 214, 255, 0.7);
+      pointer-events: none;
+    }
+
+    .flash {
+      position: absolute;
+      inset: 0;
+      border-radius: 12px;
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 0.18s ease;
+      z-index: 2;
+    }
+    .flash.show { opacity: 1; }
+
+    .hint {
+      margin-top: 12px;
+      color: var(--muted);
+      font-size: 14px;
+      text-align: center;
+    }
+    .hint strong { color: var(--text); font-weight: 700; }
+
+    .game-over .title { color: #ff9ba2; }
+  </style>
+</head>
+<body>
+  <main class="game" id="game">
+    <div class="hud">
+      <div class="title" id="status">Timing Dash</div>
+      <div class="stats">Score: <strong id="score">0</strong> · Best: <strong id="best">0</strong></div>
+    </div>
+
+    <div class="track-wrap" id="trackWrap">
+      <div class="track" id="track">
+        <div class="target" id="target"></div>
+        <div class="marker" id="marker"></div>
+      </div>
+      <div class="flash" id="flash"></div>
+    </div>
+
+    <p class="hint" id="hint">Press <strong>SPACE</strong> or <strong>CLICK</strong> to stop on green.</p>
+  </main>
+
+  <script>
+    const el = {
+      game: document.getElementById('game'),
+      track: document.getElementById('track'),
+      target: document.getElementById('target'),
+      marker: document.getElementById('marker'),
+      status: document.getElementById('status'),
+      score: document.getElementById('score'),
+      best: document.getElementById('best'),
+      hint: document.getElementById('hint'),
+      flash: document.getElementById('flash')
+    };
+
+    const clamp = (n, min, max) => Math.min(max, Math.max(min, n));
+    const rand = (min, max) => min + Math.random() * (max - min);
+
+    const savedBest = Number(localStorage.getItem('timing-dash-best') || 0);
+    const state = {
+      pos: 0.5,
+      dir: 1,
+      speed: 0.55,
+      score: 0,
+      best: Number.isFinite(savedBest) ? savedBest : 0,
+      targetStart: 0.35,
+      targetWidth: 0.2,
+      running: true,
+      resolving: false,
+      gameOver: false,
+      lastTime: performance.now()
+    };
+
+    const paint = () => {
+      el.marker.style.left = `${state.pos * 100}%`;
+      el.target.style.left = `${state.targetStart * 100}%`;
+      el.target.style.width = `${state.targetWidth * 100}%`;
+      el.score.textContent = state.score;
+      el.best.textContent = state.best;
+    };
+
+    const setFlash = (color) => {
+      el.flash.style.background = color;
+      el.flash.classList.add('show');
+      clearTimeout(setFlash.t);
+      setFlash.t = setTimeout(() => el.flash.classList.remove('show'), 140);
+    };
+
+    const placeTarget = () => {
+      state.targetStart = rand(0, 1 - state.targetWidth);
+    };
+
+    const updateBest = () => {
+      state.best = Math.max(state.best, state.score);
+      localStorage.setItem('timing-dash-best', String(state.best));
+    };
+
+    const resetGame = () => {
+      state.score = 0;
+      state.pos = Math.random();
+      state.dir = Math.random() > 0.5 ? 1 : -1;
+      state.speed = 0.55;
+      state.targetWidth = 0.22;
+      state.gameOver = false;
+      state.resolving = false;
+      state.running = true;
+      placeTarget();
+      el.status.textContent = 'Timing Dash';
+      el.hint.innerHTML = 'Press <strong>SPACE</strong> or <strong>CLICK</strong> to stop on green.';
+      el.game.classList.remove('game-over');
+      paint();
+    };
+
+    const fail = () => {
+      updateBest();
+      state.gameOver = true;
+      state.running = false;
+      state.resolving = false;
+      el.status.textContent = 'Game Over';
+      el.hint.innerHTML = `Final score: <strong>${state.score}</strong> · Press <strong>SPACE</strong> or <strong>CLICK</strong> to restart.`;
+      el.game.classList.add('game-over');
+      setFlash('var(--bad)');
+      paint();
+    };
+
+    const success = () => {
+      state.score += 1;
+      updateBest();
+      state.targetWidth = clamp(state.targetWidth * 0.88, 0.045, 0.4);
+      state.speed = clamp(state.speed * 1.1 + 0.018, 0, 2.6);
+      setFlash('var(--ok)');
+      paint();
+
+      setTimeout(() => {
+        placeTarget();
+        state.running = true;
+        state.resolving = false;
+        paint();
+      }, 140);
+    };
+
+    const takeShot = () => {
+      if (state.resolving) return;
+      if (state.gameOver) {
+        resetGame();
+        return;
+      }
+
+      state.running = false;
+      state.resolving = true;
+      const hit = state.pos >= state.targetStart && state.pos <= state.targetStart + state.targetWidth;
+      hit ? success() : fail();
+    };
+
+    const loop = (t) => {
+      const dt = Math.min(0.032, (t - state.lastTime) / 1000);
+      state.lastTime = t;
+
+      if (state.running) {
+        state.pos += state.dir * state.speed * dt;
+        if (state.pos <= 0) {
+          state.pos = 0;
+          state.dir = 1;
+        } else if (state.pos >= 1) {
+          state.pos = 1;
+          state.dir = -1;
+        }
+        paint();
+      }
+
+      requestAnimationFrame(loop);
+    };
+
+    document.addEventListener('keydown', (e) => {
+      if (e.code !== 'Space') return;
+      e.preventDefault();
+      takeShot();
+    });
+    el.game.addEventListener('pointerdown', takeShot);
+
+    placeTarget();
+    paint();
+    requestAnimationFrame((t) => {
+      state.lastTime = t;
+      requestAnimationFrame(loop);
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,43 @@
+:root{
+  --bg:#f7f7fb; --surface:#fff; --border:#e5e7eb; --text:#111827;
+  --accent:#2563eb; --primary:#22c55e; --primary-hover:#16a34a;
+}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{
+  margin:0; font-family:-apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
+  background:var(--bg); color:var(--text);
+}
+.container{max-width:720px; margin:32px auto; padding:0 16px}
+#title{text-align:center; margin:0 0 12px}
+
+.hud{display:flex; align-items:center; justify-content:space-between; gap:12px;
+  background:var(--surface); border:1px solid var(--border); border-radius:8px; padding:8px 12px; margin-bottom:12px}
+.mono{font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace}
+.label{opacity:.8; margin-right:6px}
+
+.stage{display:grid; grid-template-columns:1fr minmax(0, 220px); gap:12px; align-items:start}
+@media (max-width: 640px){ .stage{grid-template-columns:1fr} }
+
+.play-area{position:relative; width:100%; aspect-ratio: 3 / 2; min-height:240px; background:var(--surface);
+  border:1px solid var(--border); border-radius:8px; overflow:hidden}
+
+.bug{position:absolute; width:40px; height:40px; border-radius:50%; background:#ef4444; border:2px solid #111; cursor:pointer;
+  box-shadow:0 1px 2px rgba(0,0,0,.2)}
+.bug:focus{outline:2px solid var(--accent); outline-offset:2px}
+
+.panel{background:var(--surface); border:1px solid var(--border); border-radius:8px; padding:12px}
+.panel-title{margin:0 0 8px; font-size:1rem}
+.score-list{margin:0; padding-left:18px}
+
+.controls{display:flex; align-items:center; gap:12px; margin:12px 0}
+.btn{appearance:none; border:none; padding:8px 12px; border-radius:8px; cursor:pointer; background:#e5e7eb}
+.btn.primary{background:var(--primary); color:#0b1b0f}
+.btn.primary:hover{background:var(--primary-hover)}
+.btn:disabled{opacity:.6; cursor:not-allowed}
+.input{padding:8px 10px; border:1px solid var(--border); border-radius:8px; min-width:140px}
+.row{display:flex; gap:8px; align-items:center; flex-wrap:wrap; margin-top:6px}
+.note{margin:0; font-size:.9rem; opacity:.8}
+.final{margin-top:8px}
+.final-text{margin:0 0 6px}
+.msg{margin:6px 0 0; font-size:.9rem}

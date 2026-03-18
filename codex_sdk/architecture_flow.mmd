@@ -1,0 +1,19 @@
+flowchart TD
+    U["User / Task List"] --> E["Entrypoint: main"]
+    E --> PM[Project Manager Agent]
+    PM --> D[Designer Agent]
+    PM --> FE[Frontend Developer Agent]
+    PM --> BE[Backend Developer Agent]
+    PM --> T[Tester Agent]
+
+    D --> PM
+    FE --> PM
+    BE --> PM
+    T --> PM
+
+    D --> WS[Web Search Tool]
+    PM --> MCP[Codex MCP Server]
+    D --> MCP
+    FE --> MCP
+    BE --> MCP
+    T --> MCP

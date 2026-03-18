@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Bug Busters</title>
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <main class="container">
+      <h1 id="title">Bug Busters</h1>
+
+      <section id="hud" class="hud" aria-label="game status">
+        <div class="hud-left">
+          <span class="label">Time:</span>
+          <strong id="time" class="mono" aria-live="polite">00:20</strong>
+        </div>
+        <div class="hud-right">
+          <span class="label">Score:</span>
+          <strong id="score" aria-live="polite">0</strong>
+        </div>
+      </section>
+
+      <section id="stage" class="stage">
+        <div id="play-area" class="play-area" aria-label="play area">
+          <!-- Bug element (hidden until game starts) -->
+          <div id="bug" class="bug" role="button" aria-label="bug" title="Click me!" hidden></div>
+        </div>
+
+        <aside id="leaderboard" class="panel leaderboard" hidden>
+          <h2 class="panel-title">Top 10</h2>
+          <ol id="score-list" class="score-list"></ol>
+        </aside>
+      </section>
+
+      <section id="controls" class="controls">
+        <button id="start-btn" class="btn primary">Start</button>
+        <p id="offline-note" class="note" hidden>Leaderboard unavailable (backend offline).</p>
+      </section>
+
+      <section id="final-panel" class="panel final" hidden>
+        <p id="final-text" class="final-text">Time’s up! Your score: <strong id="final-score">0</strong></p>
+        <div id="submit-wrap" class="submit-wrap" hidden>
+          <label for="name-input" class="label">Your name (2–12 chars)</label>
+          <div class="row">
+            <input id="name-input" class="input" type="text" maxlength="12" placeholder="Your name (2–12 chars)" />
+            <button id="submit-btn" class="btn">Submit Score</button>
+          </div>
+          <p id="submit-msg" class="msg" role="status" aria-live="polite"></p>
+        </div>
+      </section>
+    </main>
+
+    <script src="./script.js" defer></script>
+  </body>
+</html>
