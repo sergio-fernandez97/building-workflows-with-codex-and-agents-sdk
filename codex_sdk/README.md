@@ -6,6 +6,12 @@ This folder replicates section **2. Orchestrating Multi-Agent Workflows** from:
 
 It uses a Project Manager agent that gates handoffs across Designer -> (Frontend + Backend) -> Tester.
 
+## Workflow Sequence (Live Coding)
+
+Use this sequence diagram during the live coding session to explain how orchestration progresses turn by turn, including gate checks and handoffs between roles.
+
+![Codex SDK workflow sequence](../images/architecture_sequence.svg)
+
 ## 1. Prerequisites
 
 - Node.js 20+
@@ -80,4 +86,3 @@ Exact outputs depend on the run, but the gating flow should match section 2 beha
 - If `OPENAI_API_KEY` is missing, startup fails immediately.
 - If `npx` cannot launch Codex MCP, check Node/npm install and network access.
 - If the workflow stalls, increase `maxTurns` in `src/main.ts`.
-

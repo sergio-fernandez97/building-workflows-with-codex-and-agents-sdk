@@ -1,4 +1,4 @@
-# Building Consistent Workflows with Codex, MCP, and Agents SDK
+# Building Consistent Workflows with Codex CLI & Agents SDK, and Codex App
 
 This repository supports a live coding session with three stages:
 
@@ -35,7 +35,8 @@ uv sync
 
 ## Why run Codex through an MCP server?
 
-In this lesson, agents need to perform coding actions in the local workspace. MCP is the bridge that exposes Codex as a structured tool to those agents.
+In this lesson, agents need to perform coding actions in the local workspace. 
+MCP is the bridge that exposes Codex as a structured tool to those agents.
 
 Using Codex via MCP gives us:
 
@@ -61,6 +62,12 @@ npx -y @openai/codex@0.71.0 mcp-server
   - prompt files in `prompts/`
   - `@openai/agents`, `@openai/agents-core`, `dotenv`, `tsx`, `typescript`
 - Codex App instructions in `codex_app/README.md`
+
+## Target Architecture (Agents SDK)
+
+The diagram below summarizes what we intend to build with the Agents SDK in this session: a gated multi-agent workflow where a Project Manager orchestrates specialized agents while Codex MCP executes coding tasks in the local workspace.
+
+![Agents SDK architecture flow](images/architecture_flow.svg)
 
 ## Live Session Order
 
